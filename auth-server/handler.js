@@ -4,7 +4,7 @@ const calendar = google.calendar("v3");
 
 const SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"];
 
-
+// Define the credentials required for authentication
 const credentials = {
   client_id: process.env.CLIENT_ID,
   project_id: process.env.PROJECT_ID,
@@ -16,16 +16,21 @@ const credentials = {
   redirect_uris: ["https://Alen245.github.io/meet/"],
   javascript_origins: ["https://Alen245.github.io", "http://localhost:3000"],
 };
+
+// Destructure necessary credentials from the credentials object
 const { client_secret, client_id, redirect_uris, calendar_id } = credentials;
+
+// Create an instance of OAuth2 client
 const oAuth2Client = new google.auth.OAuth2(
   client_id,
   client_secret,
   redirect_uris[0]
 );
 
-
+// Export the getAuthURL function
 module.exports.getAuthURL = async () => {
 
+  // Generate the authorization URL
   const authUrl = oAuth2Client.generateAuthUrl({
     access_type: "offline",
     scope: SCOPES,
@@ -42,9 +47,10 @@ module.exports.getAuthURL = async () => {
     }),
   };
 };
-
+// Export the getAccessToken function
 module.exports.getAccessToken = async (event) => {
-  // The values used to instantiate the OAuthClient are at the top of the file
+
+  // Create a new instance of OAuth2 client
   const oAuth2Client = new google.auth.OAuth2(
     client_id,
     client_secret,
@@ -54,10 +60,7 @@ module.exports.getAccessToken = async (event) => {
   const code = decodeURIComponent(`${event.pathParameters.code}`);
 
   return new Promise((resolve, reject) => {
-    /**
-     *  Exchange authorization code for access token with a “callback” after the exchange,
-     *  The callback in this case is an arrow function with the results as parameters: “err” and “token.”
-     */
+    // Exchange authorization code for access token with a callback function
 
     oAuth2Client.getToken(code, (err, token) => {
       if (err) {
@@ -87,8 +90,9 @@ module.exports.getAccessToken = async (event) => {
     });
 };
 
+// Export the getCalendarEvents function
 module.exports.getCalendarEvents = event => {
-
+  // Create a new instance of OAuth2 client
   const oAuth2Client = new google.auth.OAuth2(
     client_id,
     client_secret,
@@ -99,7 +103,7 @@ module.exports.getCalendarEvents = event => {
 
   oAuth2Client.setCredentials({ access_token });
   return new Promise((resolve, reject) => {
-
+    // Retrieve calendar events using the calendar API
     calendar.events.list(
       {
         calendarId: calendar_id,
