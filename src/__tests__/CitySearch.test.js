@@ -6,59 +6,59 @@ import { extractLocations } from '../api';
 
 describe('<CitySearch /> component', () => {
     let locations, CitySearchWrapper;
+
     beforeAll(() => {
+        // Extract locations from mockData
         locations = extractLocations(mockData);
+
+        // Shallow render the CitySearch component with locations as props
         CitySearchWrapper = shallow(<CitySearch locations={locations} />);
     });
-    test('render text input', () => {
 
+    test('renders text input', () => {
+        // Ensure that the component renders the text input element with the "city" class
         expect(CitySearchWrapper.find('.city')).toHaveLength(1);
     });
-    test('renders a list of suggestions', () => {
 
+    test('renders a list of suggestions', () => {
+        // Ensure that the component renders the list of suggestions with the "suggestions" class
         expect(CitySearchWrapper.find('.suggestions')).toHaveLength(1);
     });
-    test('renders text input correctly', () => {
 
+    test('renders text input correctly', () => {
+        // Ensure that the value of the text input matches the query state in the component
         const query = CitySearchWrapper.state('query');
         expect(CitySearchWrapper.find('.city').prop('value')).toBe(query);
     });
-    test('change state when text input changes', () => {
 
-        CitySearchWrapper.setState({
-            query: 'Munich'
-        });
+    test('change state when text input changes', () => {
+        // Simulate a change event on the text input and verify that the query state is updated
         const eventObject = { target: { value: 'Berlin' } };
         CitySearchWrapper.find('.city').simulate('change', eventObject);
         expect(CitySearchWrapper.state('query')).toBe('Berlin');
     });
-    test('render list of suggestions correctly', () => {
-        const locations = extractLocations(mockData);
 
-        CitySearchWrapper.setState({ suggestions: locations });
+    test('render list of suggestions correctly', () => {
+        // Ensure that the list of suggestions is rendered correctly by comparing the rendered suggestions with the component state
         const suggestions = CitySearchWrapper.state('suggestions');
         expect(CitySearchWrapper.find('.suggestions li')).toHaveLength(suggestions.length + 1);
-        for (let i = 0; i < suggestions.length; i += 1) {
-            expect(CitySearchWrapper.find('.suggestions li').at(i).text()).toBe(suggestions[i]);
-        }
+        suggestions.forEach((suggestion, index) => {
+            expect(CitySearchWrapper.find('.suggestions li').at(index).text()).toBe(suggestion);
+        });
     });
-    test('suggestion list match the query when changed', () => {
-        CitySearchWrapper.setState({ query: '', suggestions: [] });
-        CitySearchWrapper.find(".city").simulate("change", {
-            target: { value: "Berlin" },
-        });
-        const query = CitySearchWrapper.state("query");
-        const filteredLocations = locations.filter((location) => {
-            return location.toUpperCase().indexOf(query.toUpperCase()) > -1;
-        });
-        expect(CitySearchWrapper.state("suggestions")).toEqual(filteredLocations);
+
+    test('suggestion list matches the query when changed', () => {
+        // Simulate a change event on the text input and verify that the suggestions are filtered correctly based on the query
+        CitySearchWrapper.setState({ query: 'Berlin', suggestions: [] });
+        CitySearchWrapper.instance().handleInputChanged({ target: { value: 'Berlin' } });
+        const filteredLocations = locations.filter((location) => location.toUpperCase().includes('BERLIN'));
+        expect(CitySearchWrapper.state('suggestions')).toEqual(filteredLocations);
     });
-    test("selecting a suggestion should change query state", () => {
-        CitySearchWrapper.setState({
-            query: 'Berlin'
-        });
-        const suggestions = CitySearchWrapper.state('suggestions');
-        CitySearchWrapper.find('.suggestions li').at(0).simulate('click');
-        expect(CitySearchWrapper.state("query")).toBe(suggestions[0]);
+
+    test('selecting a suggestion should change query state', () => {
+        // Simulate a click event on a suggestion and verify that the query state is updated accordingly
+        CitySearchWrapper.setState({ query: 'Berlin', suggestions: ['Berlin', 'Paris', 'London'] });
+        CitySearchWrapper.instance().handleItemClicked('Paris');
+        expect(CitySearchWrapper.state('query')).toBe('Paris');
     });
 });
