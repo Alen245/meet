@@ -1,14 +1,16 @@
 import { loadFeature, defineFeature } from 'jest-cucumber';
 import React from 'react';
-import { mount } from 'enzyme';
 import App from '../App';
 import { mockData } from '../mock-data';
-import axios from 'axios';
+import { mount, shallow } from 'enzyme';
+import CitySearch from '../CitySearch';
 
 const feature = loadFeature('./src/features/filterEventsByCity.feature');
 
 
 defineFeature(feature, (test) => {
+
+    //scenarion 1
     test('When user hasn’t searched for a city, show upcoming events from all cities.', ({
         given,
         when,
@@ -26,7 +28,7 @@ defineFeature(feature, (test) => {
             expect(AppWrapper.find('.event')).toHaveLength(mockData.length);
         });
     });
-
+    //scenario 2
     test('User should see a list of suggestions when they search for a city', ({
         given,
         when,
@@ -47,7 +49,7 @@ defineFeature(feature, (test) => {
             expect(CitySearchWrapper.find('.suggestions li')).toHaveLength(2);
         });
     });
-
+    //scenario 3
     test('User can select a city from the suggested list', ({
         given,
         and,
