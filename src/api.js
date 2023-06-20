@@ -1,6 +1,8 @@
 import { mockData } from './mock-data';
 import axios from 'axios';
 import NProgress from 'nprogress';
+import { mount, shallow } from 'enzyme';
+import CitySearch from '../CitySearch';
 
 /**
  *

@@ -5,6 +5,8 @@ import EventList from '../EventList';
 import CitySearch from '../CitySearch';
 import { mockData } from '../mock-data';
 import { extractLocations, getEvents } from '../api';
+import axios from 'axios';
+
 
 
 describe('<App /> component', () => {
