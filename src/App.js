@@ -8,36 +8,55 @@ import './nprogress.css';
 class App extends Component {
   state = {
     events: [],
-    locations: []
+    locations: [],
   };
 
   componentDidMount() {
+    // Set a flag to indicate that the component is mounted
     this.mounted = true;
-    getEvents().then((events) => {
-      if (this.mounted) {
-        this.setState({ events, locations: extractLocations(events) });
-      }
-    });
+    // Fetch events and locations when the component mounts
+    this.getEventsAndLocations();
   }
 
   componentWillUnmount() {
+    // Set the mounted flag to false when the component is unmounted
     this.mounted = false;
   }
 
-  updateEvents = (location) => {
-    getEvents().then((events) => {
+  getEventsAndLocations = async () => {
+    try {
+      // Fetch events from the API
+      const events = await getEvents();
+      if (this.mounted) {
+        // Extract unique locations from the events and update the state
+        const locations = extractLocations(events);
+        this.setState({ events, locations });
+      }
+    } catch (error) {
+      // Handle error if any
+    }
+  };
+
+  updateEvents = async (location) => {
+    try {
+      // Fetch events from the API
+      const events = await getEvents();
+      // Filter events based on the selected location or show all events if 'all' is selected
       const locationEvents =
         location === 'all' ? events : events.filter((event) => event.location === location);
-      this.setState({
-        events: locationEvents
-      });
-    });
+      // Update the state with the filtered events
+      this.setState({ events: locationEvents });
+    } catch (error) {
+      // Handle error if any
+    }
   };
 
   render() {
     return (
       <div className="App">
+        {/* Render the CitySearch component with locations and updateEvents function */}
         <CitySearch locations={this.state.locations} updateEvents={this.updateEvents} />
+        {/* Render the EventList component with events */}
         <EventList events={this.state.events} />
       </div>
     );
