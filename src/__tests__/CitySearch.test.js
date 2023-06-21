@@ -3,8 +3,6 @@ import { shallow } from 'enzyme';
 import CitySearch from '../CitySearch';
 import { mockData } from '../mock-data';
 import { extractLocations } from '../api';
-import axios from 'axios';
-
 
 describe('<CitySearch /> component', () => {
     let locations, CitySearchWrapper;
@@ -45,13 +43,9 @@ describe('<CitySearch /> component', () => {
     test('render list of suggestions correctly', () => {
         // Ensure that the list of suggestions is rendered correctly by comparing the rendered suggestions with the component state
         const suggestions = CitySearchWrapper.state('suggestions');
-        expect(CitySearchWrapper.find('.suggestions li')).toHaveLength(
-            suggestions.length + 1
-        );
+        expect(CitySearchWrapper.find('.suggestions li')).toHaveLength(suggestions.length + 1);
         suggestions.forEach((suggestion, index) => {
-            expect(CitySearchWrapper.find('.suggestions li').at(index).text()).toBe(
-                suggestion
-            );
+            expect(CitySearchWrapper.find('.suggestions li').at(index).text()).toBe(suggestion);
         });
     });
 

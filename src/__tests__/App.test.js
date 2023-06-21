@@ -5,12 +5,10 @@ import EventList from '../EventList';
 import CitySearch from '../CitySearch';
 import { mockData } from '../mock-data';
 import { extractLocations, getEvents } from '../api';
-import axios from 'axios';
-
-
 
 describe('<App /> component', () => {
     let AppWrapper;
+
     beforeAll(() => {
         AppWrapper = shallow(<App />);
     });
@@ -20,7 +18,6 @@ describe('<App /> component', () => {
     });
 
     test('render CitySearch', () => {
-
         expect(AppWrapper.find(CitySearch)).toHaveLength(1);
     });
 });
@@ -48,11 +45,11 @@ describe('<App /> integration', () => {
         const locations = extractLocations(mockData);
         CitySearchWrapper.setState({ suggestions: locations });
         const suggestions = CitySearchWrapper.state('suggestions');
-        const selectedIndex = Math.floor(Math.random() * (suggestions.length));
+        const selectedIndex = Math.floor(Math.random() * suggestions.length);
         const selectedCity = suggestions[selectedIndex];
         await CitySearchWrapper.instance().handleItemClicked(selectedCity);
         const allEvents = await getEvents();
-        const eventsToShow = allEvents.filter(event => event.location === selectedCity);
+        const eventsToShow = allEvents.filter((event) => event.location === selectedCity);
         expect(AppWrapper.state('events')).toEqual(eventsToShow);
         AppWrapper.unmount();
     });
@@ -65,9 +62,4 @@ describe('<App /> integration', () => {
         expect(AppWrapper.state('events')).toEqual(allEvents);
         AppWrapper.unmount();
     });
-
 });
-
-
-
-
