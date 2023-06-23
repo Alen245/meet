@@ -1,45 +1,34 @@
 import React, { Component } from 'react';
 
 class Alert extends Component {
-    constructor(props) {
-        super(props);
-        this.color = null;
-    }
-
-    getStyle = () => {
-        return {
-            color: this.color,
-        };
-    }
-
     render() {
+        const { type, text } = this.props;
+        let color = null;
+
+        switch (type) {
+            case 'info':
+                color = 'blue';
+                break;
+            case 'warning':
+                color = 'orange';
+                break;
+            case 'error':
+                color = 'red';
+                break;
+            default:
+                break;
+        }
+
+        const style = {
+            color: color,
+        };
+
         return (
             <div className="Alert">
-                <p style={this.getStyle()}>{this.props.text}</p>
+                <p style={style}>{text}</p>
             </div>
         );
     }
 }
 
-class InfoAlert extends Alert {
-    constructor(props) {
-        super(props);
-        this.color = 'blue';
-    }
-}
-
-class WarningAlert extends Alert {
-    constructor(props) {
-        super(props);
-        this.color = 'orange';
-    }
-}
-
-class ErrorAlert extends Alert {
-    constructor(props) {
-        super(props);
-        this.color = 'red';
-    }
-}
-
-export { InfoAlert, WarningAlert, ErrorAlert };
+export default Alert;
