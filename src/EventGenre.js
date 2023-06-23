@@ -1,39 +1,42 @@
 import React, { useEffect, useState } from 'react';
-import { PieChart, Pie, Tooltip, Legend } from 'recharts';
-
-const genres = ['React', 'JavaScript', 'Node', 'jQuery', 'AngularJS'];
+import { PieChart, Pie, Cell } from 'recharts';
 
 const EventGenre = ({ events }) => {
     const [data, setData] = useState([]);
 
     useEffect(() => {
+        const getData = () => {
+            const genres = ['React', 'JavaScript', 'Node', 'jQuery', 'AngularJS'];
+            const data = genres.map((genre) => {
+                const value = events.filter((event) => event.summary.includes(genre)).length;
+                return { name: genre, value };
+            });
+            return data;
+        };
+
         setData(getData());
     }, [events]);
 
-    const getData = () => {
-        const genreData = genres.map((genre) => {
-            const filteredEvents = events.filter((event) =>
-                event.summary.toLowerCase().includes(genre.toLowerCase())
-            );
-            return { name: genre, value: filteredEvents.length };
-        });
-        return genreData;
-    };
+    const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
     return (
-        <div className="data-vis-wrapper">
+        <div className="genre-chart">
+            <h3>Event Genre Chart</h3>
             <PieChart width={400} height={300}>
                 <Pie
-                    dataKey="value"
                     data={data}
                     cx={200}
                     cy={150}
-                    outerRadius={100}
+                    labelLine={false}
+                    outerRadius={80}
                     fill="#8884d8"
-                    label
-                />
-                <Tooltip />
-                <Legend />
+                    dataKey="value"
+                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                >
+                    {data.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                </Pie>
             </PieChart>
         </div>
     );

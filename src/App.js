@@ -5,9 +5,15 @@ import CitySearch from './CitySearch';
 import { getEvents, extractLocations } from './api';
 import './nprogress.css';
 import EventGenre from './EventGenre';
-import NumberOfEvents from "./NumberOfEvents";
+import NumberOfEvents from './NumberOfEvents';
 import {
-  ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
+  ScatterChart,
+  Scatter,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
 } from 'recharts';
 
 class App extends Component {
@@ -16,41 +22,26 @@ class App extends Component {
     locations: [],
     eventCount: 32,
     selectedCity: null,
-    warningText: "",
+    warningText: '',
     showWelcomeScreen: undefined,
   };
 
   componentDidMount() {
-    getEvents().then((events) => {
-      this.setState({ events, locations: extractLocations(events) });
-    });
+    this.updateEvents();
   }
 
-  componentWillUnmount() {
-    // Clean up any necessary operations if needed
-  }
-
-  updateEvents = (location) => {
+  updateEvents = () => {
     getEvents().then((events) => {
-      const locationEvents =
-        location === 'all' ? events : events.filter((event) => event.location === location);
       this.setState({
-        events: locationEvents
+        events,
+        locations: extractLocations(events),
       });
     });
   };
 
-  getData = () => {
-    const { locations, events } = this.state;
-    const data = locations.map((location) => {
-      const number = events.filter((event) => event.location === location).length;
-      const city = location.split(', ').shift();
-      return { city, number };
-    });
-    return data;
-  };
-
   render() {
+    const { events, locations } = this.state;
+
     return (
       <div className="App">
         <ResponsiveContainer height={400}>
@@ -63,17 +54,17 @@ class App extends Component {
               dataKey="number"
               name="number of events"
             />
-            <Tooltip cursor={{ strokeDasharray: "3 3" }} />
-            <Scatter data={this.getData()} fill="#8884d8" />
+            <Tooltip cursor={{ strokeDasharray: '3 3' }} />
+            <Scatter data={locations} fill="#8884d8" />
           </ScatterChart>
         </ResponsiveContainer>
-        <CitySearch locations={this.state.locations} updateEvents={this.updateEvents} />
-        <EventList events={this.state.events} />
+        <CitySearch locations={locations} updateEvents={this.updateEvents} />
+        <EventList events={events} />
         <NumberOfEvents
           numberOfEvents={this.state.numberOfEvents}
           updateEvents={this.updateEvents}
         />
-        <EventGenre events={this.state.events} />
+        <EventGenre events={events} />
       </div>
     );
   }
