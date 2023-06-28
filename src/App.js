@@ -1,12 +1,15 @@
-import React, { Component } from "react";
-import "./App.css";
-import EventList from "./EventList";
-import CitySearch from "./CitySearch";
-import { getEvents, extractLocations } from "./api";
-import "./nprogress.css";
-import EventGenre from "./EventGenre";
+import React, { Component } from 'react';
+import './App.css';
+import EventList from './EventList';
+import CitySearch from './CitySearch';
+import { getEvents, extractLocations } from './api';
+import './nprogress.css';
+import EventGenre from './EventGenre';
 import NumberOfEvents from "./NumberOfEvents";
-import WelcomeScreen from "./WelcomeScreen";
+import {
+  ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
+} from 'recharts';
+import WelcomeScreen from './WelcomeScreen';
 
 class App extends Component {
   state = {
@@ -15,47 +18,73 @@ class App extends Component {
     eventCount: 32,
     selectedCity: null,
     warningText: "",
-    isLoggedIn: false,
+    showWelcomeScreen: true,
   };
 
   componentDidMount() {
-    this.updateEvents();
+    getEvents().then((events) => {
+      this.setState({ events, locations: extractLocations(events) });
+    });
   }
 
-  updateEvents = () => {
+  componentWillUnmount() {
+    // Clean up any necessary operations if needed
+  }
+
+  handleLogin = () => {
+    this.setState({ showWelcomeScreen: false });
+  };
+
+  updateEvents = (location) => {
     getEvents().then((events) => {
+      const locationEvents =
+        location === 'all' ? events : events.filter((event) => event.location === location);
       this.setState({
-        events,
-        locations: extractLocations(events),
+        events: locationEvents
       });
     });
   };
 
-  handleLogin = () => {
-    // Perform login logic here, e.g., authenticate with Google
-
-    // If login is successful, update the state
-    this.setState({ isLoggedIn: true });
+  getData = () => {
+    const { locations, events } = this.state;
+    const data = locations.map((location) => {
+      const number = events.filter((event) => event.location === location).length;
+      const city = location.split(', ').shift();
+      return { city, number };
+    });
+    return data;
   };
 
   render() {
-    const { events, locations, isLoggedIn } = this.state;
+    const { showWelcomeScreen } = this.state;
+
+    if (showWelcomeScreen) {
+      return <WelcomeScreen handleLogin={this.handleLogin} />;
+    }
 
     return (
       <div className="App">
-        {!isLoggedIn ? (
-          <WelcomeScreen handleLogin={this.handleLogin} />
-        ) : (
-          <>
-            <CitySearch locations={locations} updateEvents={this.updateEvents} />
-            <EventGenre events={events} />
-            <EventList events={events} />
-            <NumberOfEvents
-              numberOfEvents={this.state.numberOfEvents}
-              updateEvents={this.updateEvents}
+        <ResponsiveContainer height={400}>
+          <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+            <CartesianGrid />
+            <XAxis type="category" dataKey="city" name="city" />
+            <YAxis
+              allowDecimals={false}
+              type="number"
+              dataKey="number"
+              name="number of events"
             />
-          </>
-        )}
+            <Tooltip cursor={{ strokeDasharray: "3 3" }} />
+            <Scatter data={this.getData()} fill="#8884d8" />
+          </ScatterChart>
+        </ResponsiveContainer>
+        <CitySearch locations={this.state.locations} updateEvents={this.updateEvents} />
+        <EventList events={this.state.events} />
+        <NumberOfEvents
+          numberOfEvents={this.state.numberOfEvents}
+          updateEvents={this.updateEvents}
+        />
+        <EventGenre events={this.state.events} />
       </div>
     );
   }
